@@ -1,0 +1,35 @@
+name: Build S APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract project
+        run: |
+          unzip S_Challenge_Android.zip -d source
+          find source -name gradlew -exec chmod +x {} \;
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build APK
+        run: |
+          cd source/S_Challenge_Android
+          gradle assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: S-debug-APK
+          path: source/**/app/build/outputs/apk/debug/app-debug.apk
